@@ -19,9 +19,12 @@ public class TestSumMethod {
         String[][] arrayElementError = new String[SumUtil.ARRAY_ROWS][SumUtil.ARRAY_COLUMN];
         for (String[] strings : arrayElementError) Arrays.fill(strings, "one");
 
+        String[][] arrayElementErrorNew = {{"1", "1", "1", "1"}, {"1", "1"},{"1", "1", "1", "1"},{"1", "1"}};
+
         System.out.println(testDate(arrayCorrect));
         System.out.println(testDate(arraySizeError));
         System.out.println(testDate(arrayElementError));
+        System.out.println(testDate(arrayElementErrorNew));
     }
 
     public static String testDate(String[][] integers) {

@@ -11,8 +11,15 @@ public class SumUtil {
     public static int summarizeArraysElements(String[][] integers) throws MyArraySizeException, MyArrayDataException {
         if (integers == null || integers.length != ARRAY_ROWS || integers[0].length != ARRAY_COLUMN) {
             throw new MyArraySizeException(String.format("Ошибка! Передаваемый в метод массив должен быть String [%d][%d]",
-                    ARRAY_ROWS, ARRAY_COLUMN ));
+                    ARRAY_ROWS, ARRAY_COLUMN));
         }
+        for (int i = 1; i < integers.length; i++) {
+            if (integers[i].length != ARRAY_COLUMN) {
+                throw new MyArraySizeException(String.format("Ошибка! Передаваемый в метод массив должен быть String [%d][%d]",
+                        ARRAY_ROWS, ARRAY_COLUMN));
+            }
+        }
+
         int sum = 0;
         for (int i = 0; i < integers.length; i++) {
             for (int j = 0; j < integers[i].length; j++) {
