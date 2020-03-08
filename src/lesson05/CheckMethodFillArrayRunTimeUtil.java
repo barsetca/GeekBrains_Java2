@@ -5,9 +5,7 @@ import java.util.Arrays;
 public class CheckMethodFillArrayRunTimeUtil {
 
     protected static final int SIZE = 10_000_000;
-
     protected static final int HALF_SIZE = SIZE / 2;
-
     protected static final double[] ARRAY_WITH_UNITS = new double[SIZE];
 
     private CheckMethodFillArrayRunTimeUtil() {
