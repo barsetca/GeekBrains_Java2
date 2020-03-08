@@ -14,9 +14,10 @@ public class CheckMethodFillArrayRunTimeUtil {
     }
 
     protected static void changeArrayWithOneThread() {
-        long startTime = System.currentTimeMillis();
 
         Arrays.fill(ARRAY_WITH_UNITS, 1);
+
+        long startTime = System.currentTimeMillis();
 
         for (int i = 0; i < SIZE; i++) {
             ARRAY_WITH_UNITS[i] = changeValueArrayElement(ARRAY_WITH_UNITS[i], i, 0);
@@ -27,10 +28,11 @@ public class CheckMethodFillArrayRunTimeUtil {
     }
 
     protected static void changeArrayWithTwoThreads() {
-        long startTime = System.currentTimeMillis();
 
+        Arrays.fill(ARRAY_WITH_UNITS, 1);
+
+        long startTime = System.currentTimeMillis();
         Thread one = new Thread(() -> {
-            Arrays.fill(ARRAY_WITH_UNITS, 0, HALF_SIZE, 1);
             double[] firstPartArray = Arrays.copyOfRange(ARRAY_WITH_UNITS, 0, HALF_SIZE);
             for (int i = 0; i < HALF_SIZE; i++) {
                 firstPartArray[i] = changeValueArrayElement(firstPartArray[i], i, 0);
@@ -40,7 +42,6 @@ public class CheckMethodFillArrayRunTimeUtil {
         one.start();
 
         Thread two = new Thread(() -> {
-            Arrays.fill(ARRAY_WITH_UNITS, HALF_SIZE, SIZE, 1);
             double[] secondPartArray = Arrays.copyOfRange(ARRAY_WITH_UNITS, HALF_SIZE, SIZE);
             for (int i = 0; i < HALF_SIZE; i++) {
                 secondPartArray[i] = changeValueArrayElement(secondPartArray[i], i, HALF_SIZE);
@@ -58,7 +59,7 @@ public class CheckMethodFillArrayRunTimeUtil {
 
         long endTime = System.currentTimeMillis();
 
-        System.out.println("Время выполнения метода c использованием ДВУХ потоков: " + (endTime - startTime) + " ms");
+        System.out.print("Время выполнения метода c использованием ДВУХ потоков: " + (endTime - startTime) + " ms");
     }
 
     private static double changeValueArrayElement(double oldValue, int index, int add) {
