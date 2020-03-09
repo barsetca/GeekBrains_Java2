@@ -6,18 +6,18 @@ public class CheckMethodFillArrayRunTimeUtil {
 
     protected static final int SIZE = 10_000_000;
     protected static final int HALF_SIZE = SIZE / 2;
-    protected static final double[] ARRAY_WITH_UNITS = new double[SIZE];
 
     private CheckMethodFillArrayRunTimeUtil() {
     }
 
     protected static void changeArrayWithOneThread() {
-        Arrays.fill(ARRAY_WITH_UNITS, 1);
+        double[] arrayForChange = new double[SIZE];
+        Arrays.fill(arrayForChange, 1);
 
         long startTime = System.currentTimeMillis();
 
         for (int i = 0; i < SIZE; i++) {
-            ARRAY_WITH_UNITS[i] = changeValueArrayElement(ARRAY_WITH_UNITS[i], i, 0);
+            arrayForChange[i] = changeValueArrayElement(arrayForChange[i], i, 0);
         }
         long endTime = System.currentTimeMillis();
 
@@ -25,25 +25,25 @@ public class CheckMethodFillArrayRunTimeUtil {
     }
 
     protected static void changeArrayWithTwoThreads() {
-
-        Arrays.fill(ARRAY_WITH_UNITS, 1);
+        double[] arrayForChange = new double[SIZE];
+        Arrays.fill(arrayForChange, 1);
 
         long startTime = System.currentTimeMillis();
         Thread one = new Thread(() -> {
-            double[] firstPartArray = Arrays.copyOfRange(ARRAY_WITH_UNITS, 0, HALF_SIZE);
+            double[] firstPartArray = Arrays.copyOfRange(arrayForChange, 0, HALF_SIZE);
             for (int i = 0; i < HALF_SIZE; i++) {
                 firstPartArray[i] = changeValueArrayElement(firstPartArray[i], i, 0);
             }
-            System.arraycopy(firstPartArray, 0, ARRAY_WITH_UNITS, 0, HALF_SIZE);
+            System.arraycopy(firstPartArray, 0, arrayForChange, 0, HALF_SIZE);
         });
         one.start();
 
         Thread two = new Thread(() -> {
-            double[] secondPartArray = Arrays.copyOfRange(ARRAY_WITH_UNITS, HALF_SIZE, SIZE);
+            double[] secondPartArray = Arrays.copyOfRange(arrayForChange, HALF_SIZE, SIZE);
             for (int i = 0; i < HALF_SIZE; i++) {
                 secondPartArray[i] = changeValueArrayElement(secondPartArray[i], i, HALF_SIZE);
             }
-            System.arraycopy(secondPartArray, 0, ARRAY_WITH_UNITS, HALF_SIZE, HALF_SIZE);
+            System.arraycopy(secondPartArray, 0, arrayForChange, HALF_SIZE, HALF_SIZE);
         });
         two.start();
 
