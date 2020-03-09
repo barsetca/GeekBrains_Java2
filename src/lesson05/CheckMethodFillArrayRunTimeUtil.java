@@ -12,7 +12,6 @@ public class CheckMethodFillArrayRunTimeUtil {
     }
 
     protected static void changeArrayWithOneThread() {
-
         Arrays.fill(ARRAY_WITH_UNITS, 1);
 
         long startTime = System.currentTimeMillis();
