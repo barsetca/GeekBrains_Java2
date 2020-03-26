@@ -15,7 +15,6 @@ public class ServerApp {
                 port = Integer.parseInt(args[0]);
             } catch (NumberFormatException e) {
                 System.out.printf("Неккоректный формат порта: %s Будет использоваться порт по умолчанию.%n", args[0]);
-                e.printStackTrace();
             }
         }
         return port;

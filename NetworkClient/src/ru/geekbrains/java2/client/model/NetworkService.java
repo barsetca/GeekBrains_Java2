@@ -1,22 +1,32 @@
 package ru.geekbrains.java2.client.model;
 
+import ru.geekbrains.java2.client.Command;
+import ru.geekbrains.java2.client.CommandType;
+import ru.geekbrains.java2.client.command.AuthCommand;
+import ru.geekbrains.java2.client.command.ErrorCommand;
+import ru.geekbrains.java2.client.command.MsgCommand;
+import ru.geekbrains.java2.client.command.UpdateUsersListCommand;
 import ru.geekbrains.java2.client.controller.AuthEvent;
+import ru.geekbrains.java2.client.controller.ClientController;
+import ru.geekbrains.java2.client.controller.MsgHandler;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.util.function.Consumer;
+import java.util.List;
 
 public class NetworkService {
 
     private final String host;
     private final int port;
     private Socket socket;
-    private DataInputStream in;
-    private DataOutputStream out;
+    private ObjectInputStream in;
+    private ObjectOutputStream out;
 
-    private Consumer<String> messageHandler;
+    private ClientController controller;
+
+    private MsgHandler msgHandler;
     private AuthEvent successfulAuthEvent;
     private String nickName;
 
@@ -26,11 +36,11 @@ public class NetworkService {
         this.port = port;
     }
 
-    public void connect() throws IOException {
-
+    public void connect(ClientController controller) throws IOException {
+        this.controller = controller;
         socket = new Socket(host, port);
-        in = new DataInputStream(socket.getInputStream());
-        out = new DataOutputStream(socket.getOutputStream());
+        in = new ObjectInputStream(socket.getInputStream());
+        out = new ObjectOutputStream(socket.getOutputStream());
         runReadThread();
 
     }
@@ -39,28 +49,62 @@ public class NetworkService {
         new Thread(() -> {
             while (true) {
                 try {
-                    String msg = in.readUTF();
-                    if (msg.startsWith("/auth")) {
-                        String[] msgParts = msg.split("\\s+", 2);
-                        nickName = msgParts[1];
-                        successfulAuthEvent.authIsSuccessful(nickName);
-                    } else if (messageHandler != null) {
-                        messageHandler.accept(msg);
+                    Command command = (Command) in.readObject();
+                    if (command == null) {
+                        continue;
                     }
-                } catch (IOException e) {
-                    System.out.println("Процесс чтения прерван!");
+                    switch (command.getType()) {
+                        case AUTH: {
+                            AuthCommand commandData = (AuthCommand) command.getData();
+                            nickName = commandData.getUsername();
+                            successfulAuthEvent.authIsSuccessful(nickName);
+                            break;
+                        }
+                        case MESSAGE: {
+                            MsgCommand commandData = (MsgCommand) command.getData();
+
+                            if (msgHandler != null) {
+                                String msg = commandData.getMsg();
+                                String userName = commandData.getUsername();
+                                if (userName != null) {
+                                    msg = userName + ": " + msg;
+                                }
+                                msgHandler.handle(msg);
+                            }
+                            break;
+                        }
+                        case AUTH_ERROR:
+                        case ERROR: {
+                            ErrorCommand commandData = (ErrorCommand) command.getData();
+                            controller.showErrorMsg(commandData.getErrorMsg());
+                            if (command.getType() == CommandType.ERROR) {
+                                controller.shutdown();
+                            }
+                            break;
+                        }
+                        case UPDATE_USERS_LIST:
+                            UpdateUsersListCommand commandData = (UpdateUsersListCommand) command.getData();
+                            List<String> users = commandData.getUsers();
+                            controller.updateUsersList(users);
+                            break;
+                        default:
+                            System.out.println("Получена неизвестная команда чтения: " + command.getType());
+                    }
+
+                } catch (IOException | ClassNotFoundException e) {
+                    System.out.println("Процесс работы в чате прерван!");
                     return;
                 }
             }
         }).start();
     }
 
-    public void sendAuthMsg(String login, String password) throws IOException {
-        out.writeUTF(String.format("/auth %s %s", login, password));
+    public void sendCommand(Command command) throws IOException {
+        out.writeObject(command);
     }
 
-    public void sendMsg(String msg) throws IOException {
-        out.writeUTF(msg);
+    public void setMessageHandler(MsgHandler msgHandler) {
+        this.msgHandler = msgHandler;
     }
 
     public void close() {
@@ -69,10 +113,6 @@ public class NetworkService {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    public void setMessageHandler(Consumer<String> messageHandler) {
-        this.messageHandler = messageHandler;
     }
 
     public void setSuccessfulAuthEvent(AuthEvent successfulAuthEvent) {

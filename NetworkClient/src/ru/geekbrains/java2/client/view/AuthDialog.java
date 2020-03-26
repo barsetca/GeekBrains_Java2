@@ -3,7 +3,9 @@ package ru.geekbrains.java2.client.view;
 import ru.geekbrains.java2.client.controller.ClientController;
 
 import javax.swing.*;
-import java.awt.event.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.IOException;
 
 public class AuthDialog extends JDialog {
@@ -42,10 +44,9 @@ public class AuthDialog extends JDialog {
     }
 
     private void onOK() {
-        // add your code here
         //dispose();
         String login = loginText.getText().trim();
-        String password =  String.valueOf(passwordText.getPassword()).trim();
+        String password = String.valueOf(passwordText.getPassword()).trim();
 
         try {
             controller.sendAuthMsg(login, password);
@@ -55,14 +56,11 @@ public class AuthDialog extends JDialog {
     }
 
     private void onCancel() {
-        // add your code here if necessary
         System.exit(0);
     }
 
-//    public static void main(String[] args) {
-//        AuthDialog dialog = new AuthDialog();
-//        dialog.pack();
-//        dialog.setVisible(true);
-//
-//    }
+    public void showError(String errorMessage) {
+        JOptionPane.showMessageDialog(this, errorMessage);
+    }
+
 }

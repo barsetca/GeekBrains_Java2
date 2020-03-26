@@ -6,6 +6,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.List;
 
 public class ClientChat extends JFrame {
 
@@ -21,7 +22,7 @@ public class ClientChat extends JFrame {
     public ClientChat(ClientController controller) {
         this.controller = controller;
 
-        setSize(500, 400);
+        setSize(700, 400);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         mainPanel = new JPanel();
@@ -40,26 +41,21 @@ public class ClientChat extends JFrame {
         usersList.setVisibleRowCount(30);
         usersList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
-        JScrollPane scrollListChat = new JScrollPane(usersList);
 
+        JScrollPane scrollListChat = new JScrollPane(usersList);
         JPanel panelFieldButton = new JPanel();
 
         panelFieldButton.add(label);
         panelFieldButton.add(textField);
         panelFieldButton.add(sendButton);
 
-        mainPanel.add(BorderLayout.WEST, scrollListChat);
         mainPanel.add(BorderLayout.SOUTH, panelFieldButton);
         mainPanel.add(BorderLayout.CENTER, scrollTextChat);
+        mainPanel.add(BorderLayout.WEST, scrollListChat);
 
         setContentPane(mainPanel);
         addListeners();
-        addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosing(WindowEvent e) {
-                controller.shutdown();
-            }
-        });
+
     }
 
     private void addListeners() {
@@ -69,19 +65,32 @@ public class ClientChat extends JFrame {
         usersList.addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
                 String selection = usersList.getSelectedValue();
-                textField.setText("/to " + selection + " ");
+                textField.setText("to " + selection + " ");
+            }
+        });
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                controller.sendMsgToAll(controller.getNickName() + " вышел из чата");
+                controller.shutdown();
             }
         });
     }
 
     private void sendMessage() {
         String msg = textField.getText().trim();
-        System.out.println(msg);
         if (msg.isEmpty()) {
             return;
         }
         appendOwnMsg(msg);
-        controller.sendMsg(msg);
+
+        if (usersList.getSelectedIndex() < 1) {
+            controller.sendMsgToAll(msg);
+        } else {
+            String username = usersList.getSelectedValue();
+            controller.sendPrivateMsg(username, msg);
+        }
+        usersList.clearSelection();
         textField.setText("");
         textField.requestFocus();
     }
@@ -98,14 +107,30 @@ public class ClientChat extends JFrame {
     }
 
     public JList<String> getUsersList() {
-        String[] usersList = {"nick1", "nick2", "nick3"};
-        return new JList<>(usersList);
+
+        return new JList<>();
     }
 
     public void setUsersList(JList<String> chatersList) {
         this.usersList = chatersList;
     }
 
+    public void showError(String errorMsg) {
+        JOptionPane.showMessageDialog(this, errorMsg);
+    }
+
+    public void updateUsers(List<String> users) {
+        if (users.isEmpty()) {
+            setUsersList(new JList<>());
+            return;
+        }
+        SwingUtilities.invokeLater(() -> {
+            DefaultListModel<String> model = new DefaultListModel<>();
+            users.forEach(model::addElement);
+            usersList.setModel(model);
+            setUsersList(usersList);
+        });
+    }
 }
 
 
