@@ -4,11 +4,8 @@ import ru.geekbrains.java2.client.model.NetworkService;
 import ru.geekbrains.java2.client.view.AuthDialog;
 import ru.geekbrains.java2.client.view.ClientChat;
 
-import javax.swing.*;
 import java.io.IOException;
-import java.sql.Time;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import static ru.geekbrains.java2.client.Command.*;
 
@@ -32,24 +29,6 @@ public class ClientController {
 
     private void runAuth() {
         authDialog.setVisible(true);
-//        Thread timeOutAuth = new Thread(new Runnable() {
-//            @Override
-//            public void run() {
-//                try {
-//                    Thread.sleep(TimeUnit.SECONDS.toMillis(120));
-//                    if (authDialog.isActive()){
-//                        JOptionPane.showMessageDialog(null, "Превышено время авторизации! Войдите в приложение повтороно.",
-//                                "Timeout connecting", JOptionPane.ERROR_MESSAGE);
-//                        authDialog.dispose();
-//                        networkService.close();
-//                    }
-//                } catch (InterruptedException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        });
-//        timeOutAuth.setDaemon(true);
-//        timeOutAuth.start();
         networkService.setSuccessfulAuthEvent(nickName -> {
             ClientController.this.setNickName(nickName);
             ClientController.this.openChat();
@@ -77,6 +56,11 @@ public class ClientController {
         networkService.sendCommand(authCommand(login, password));
     }
 
+    public void sendChangeNickMsg(String newNickName, String oldNickName) throws IOException {
+        networkService.sendCommand(updateNickCommand(newNickName, oldNickName));
+    }
+
+
     public void sendPrivateMsg(String receiver, String msg) {
         try {
             networkService.sendCommand(privateMsgCommand(receiver, msg));
@@ -85,6 +69,7 @@ public class ClientController {
             e.printStackTrace();
         }
     }
+
     public void sendMsgToAll(String msg) {
         try {
             networkService.sendCommand(broadcastMsgCommand(msg));
@@ -95,7 +80,7 @@ public class ClientController {
     }
 
     public void shutdown() {
-        if (authDialog.isActive()){
+        if (authDialog.isActive()) {
             authDialog.dispose();
         }
         networkService.close();
@@ -112,12 +97,18 @@ public class ClientController {
     public void showErrorMsg(String errorMsg) {
         if (clientChat.isActive()) {
             clientChat.showError(errorMsg);
-        }
-        else if (authDialog.isActive()) {
+        } else if (authDialog.isActive()) {
             authDialog.showError(errorMsg);
 
         }
         System.err.println(errorMsg);
+    }
+
+    public void showNewNickName(String newNickName) {
+//        clientChat.isActive()
+        clientChat.setTitle(newNickName + " chat");
+        clientChat.showNewNickNameMsg("Ваш новый nickName: " + newNickName);
+
     }
 
     public void updateUsersList(List<String> users) {

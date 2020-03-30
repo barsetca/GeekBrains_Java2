@@ -8,27 +8,29 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
 
-public class AuthDialog extends JDialog {
+public class ChangeNick extends JDialog {
     private JPanel contentPane;
     private JButton buttonOK;
     private JButton buttonCancel;
-    private JTextField loginText;
-    private JPasswordField passwordText;
+    private JTextField textField1;
+    private JTextField textField2;
 
     private ClientController controller;
+//
 
-    public AuthDialog(ClientController controller) {
+    public ChangeNick(ClientController controller) {
         this.controller = controller;
+        textField1.setText(controller.getNickName());
+        textField1.setEditable(false);
         setContentPane(contentPane);
         //setModal(true);
         getRootPane().setDefaultButton(buttonOK);
         setSize(400, 150);
-        setTitle("Авторизация");
+        setTitle("Смена nickName");
         setLocationRelativeTo(null);
 
-        buttonOK.addActionListener(e -> AuthDialog.this.onOK());
-
-        buttonCancel.addActionListener(e -> onCancel());
+        buttonOK.addActionListener(e -> ChangeNick.this.onOK());
+        buttonCancel.addActionListener(e -> ChangeNick.this.onCancel());
 
         // call onCancel() when cross is clicked
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
@@ -44,23 +46,27 @@ public class AuthDialog extends JDialog {
     }
 
     private void onOK() {
-        //dispose();
-        String login = loginText.getText().trim();
-        String password = String.valueOf(passwordText.getPassword()).trim();
+        // add your code here
+        // dispose();
 
+        String oldNickName = textField1.getText().trim();
+        String newNickName = textField2.getText().trim();
+
+        if (newNickName.isEmpty()) {
+            dispose();
+        }
         try {
-            controller.sendAuthMsg(login, password);
+            controller.sendChangeNickMsg(newNickName, oldNickName);
+            dispose();
         } catch (IOException e) {
-            JOptionPane.showMessageDialog(this, "Ошибка аутентификации");
+            JOptionPane.showMessageDialog(this, "Ошибка смены nickName");
         }
     }
 
     private void onCancel() {
-        System.exit(0);
-    }
-
-    public void showError(String errorMessage) {
-        JOptionPane.showMessageDialog(this, errorMessage);
+        // add your code here if necessary
+        dispose();
     }
 
 }
+

@@ -15,6 +15,7 @@ public class ClientChat extends JFrame {
     JTextField textField;
     JTextArea textAreaChat;
     JButton sendButton;
+    JButton changeNickButton;
     JLabel label;
 
     private ClientController controller;
@@ -36,6 +37,7 @@ public class ClientChat extends JFrame {
         textField = new JTextField(25);
         label = new JLabel("My massage: ");
         sendButton = new JButton("Send");
+        changeNickButton = new JButton("Change nick");
 
         usersList = getUsersList();
         usersList.setVisibleRowCount(30);
@@ -48,6 +50,7 @@ public class ClientChat extends JFrame {
         panelFieldButton.add(label);
         panelFieldButton.add(textField);
         panelFieldButton.add(sendButton);
+        panelFieldButton.add(changeNickButton);
 
         mainPanel.add(BorderLayout.SOUTH, panelFieldButton);
         mainPanel.add(BorderLayout.CENTER, scrollTextChat);
@@ -61,6 +64,13 @@ public class ClientChat extends JFrame {
     private void addListeners() {
 
         sendButton.addActionListener(e -> ClientChat.this.sendMessage());
+        changeNickButton.addActionListener(e -> {
+            ChangeNick changeNick = new ChangeNick(controller);
+            changeNick.setVisible(true);
+            //  setTitle(controller.getNickName() + " chat");
+
+
+        });
         textField.addActionListener(e -> ClientChat.this.sendMessage());
         usersList.addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
@@ -117,6 +127,10 @@ public class ClientChat extends JFrame {
 
     public void showError(String errorMsg) {
         JOptionPane.showMessageDialog(this, errorMsg);
+    }
+
+    public void showNewNickNameMsg(String msg) {
+        JOptionPane.showMessageDialog(this, msg);
     }
 
     public void updateUsers(List<String> users) {

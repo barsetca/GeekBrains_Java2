@@ -5,6 +5,7 @@ import ru.geekbrains.java2.client.CommandType;
 import ru.geekbrains.java2.client.command.AuthCommand;
 import ru.geekbrains.java2.client.command.BroadcastMsgCommand;
 import ru.geekbrains.java2.client.command.PrivateMsgCommand;
+import ru.geekbrains.java2.client.command.UpdateNickCommand;
 import ru.geekbrains.java2.server.NetworkServer;
 
 import java.io.IOException;
@@ -55,8 +56,8 @@ public class ClientHandler {
                     });
                     timeOutAuth.setDaemon(true);
                     timeOutAuth.start();
-                    authUser();
 
+                    authUser();
                     readMsg();
                 } catch (IOException e) {
                     System.out.println("Соединение с клиентом: " + nickName + " закрыто!");
@@ -96,10 +97,14 @@ public class ClientHandler {
                     networkServer.sendMsg(receiver, Command.msgCommand(nickName, msg));
                     break;
                 }
-                case BROADCAST_MESSAGE:
+                case BROADCAST_MESSAGE: {
                     BroadcastMsgCommand commandData = (BroadcastMsgCommand) command.getData();
                     String msg = commandData.getMsg();
                     networkServer.broadCastMsg(Command.msgCommand(nickName, msg), this);
+                    break;
+                }
+                case UPDATE_NICK_NAME:
+                    doUpdateNickCommand(command);
                     break;
                 default:
                     System.out.println("Получена неизвестная команда чтения: " + command.getType());
@@ -159,6 +164,27 @@ public class ClientHandler {
             sendMsg(command);
             networkServer.subscribe(this);
             return true;
+        }
+    }
+
+    private void doUpdateNickCommand(Command command) throws IOException {
+        UpdateNickCommand commandData = (UpdateNickCommand) command.getData();
+        String newNickName = commandData.getNewNickName();
+        String oldNickName = commandData.getOldNickName();
+
+        int successfulUpdate = networkServer.getAuthService().updateUserNickName(newNickName, oldNickName);
+        if (successfulUpdate == 0) {
+            Command authErrorCommand = Command.authErrorCommand(String.format("Пользователь с nickName = %s уже существует%n", newNickName));
+            sendMsg(authErrorCommand);
+        } else {
+
+            String message = oldNickName + " сменил nickName! Новый nickName: " + newNickName;
+            networkServer.broadCastMsg(Command.msgCommand(null, message), this);
+            networkServer.unSubscribe(this);
+            nickName = newNickName;
+//            commandData.setUsername(nickName);
+            sendMsg(command);
+            networkServer.subscribe(this);
         }
     }
 

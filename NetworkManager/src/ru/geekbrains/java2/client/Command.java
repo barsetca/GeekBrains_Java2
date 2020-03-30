@@ -71,4 +71,11 @@ public class Command implements Serializable {
         command.type = CommandType.END;
         return command;
     }
+
+    public static Command updateNickCommand(String newNickName, String oldNickName) {
+        Command command = new Command();
+        command.type = CommandType.UPDATE_NICK_NAME;
+        command.data = new UpdateNickCommand(newNickName, oldNickName);
+        return command;
+    }
 }
