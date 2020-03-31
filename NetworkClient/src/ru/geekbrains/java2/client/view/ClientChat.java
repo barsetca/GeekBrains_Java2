@@ -67,8 +67,6 @@ public class ClientChat extends JFrame {
         changeNickButton.addActionListener(e -> {
             ChangeNick changeNick = new ChangeNick(controller);
             changeNick.setVisible(true);
-            //  setTitle(controller.getNickName() + " chat");
-
 
         });
         textField.addActionListener(e -> ClientChat.this.sendMessage());
@@ -106,7 +104,9 @@ public class ClientChat extends JFrame {
     }
 
     private void appendOwnMsg(String msg) {
-        appendMsg("Я: " + msg);
+        String myMsg = "Я: " + msg;
+        appendMsg(myMsg);
+        controller.writeMsgToHistory(myMsg);
     }
 
     public void appendMsg(String msg) {

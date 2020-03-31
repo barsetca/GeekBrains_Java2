@@ -26,11 +26,16 @@ public class NetworkService {
     private MsgHandler msgHandler;
     private AuthEvent successfulAuthEvent;
     private String nickName;
+    private String login;
 
     public NetworkService(String host, int port) {
 
         this.host = host;
         this.port = port;
+    }
+
+    public String getLogin() {
+        return login;
     }
 
     public void connect(ClientController controller) throws IOException {
@@ -54,7 +59,9 @@ public class NetworkService {
                         case AUTH: {
                             AuthCommand commandData = (AuthCommand) command.getData();
                             nickName = commandData.getUsername();
+                            login = commandData.getLogin();
                             successfulAuthEvent.authIsSuccessful(nickName);
+
                             break;
                         }
                         case UPDATE_NICK_NAME: {
@@ -66,7 +73,6 @@ public class NetworkService {
                         }
                         case MESSAGE: {
                             MsgCommand commandData = (MsgCommand) command.getData();
-
                             if (msgHandler != null) {
                                 String msg = commandData.getMsg();
                                 String userName = commandData.getUsername();
@@ -74,6 +80,18 @@ public class NetworkService {
                                     msg = userName + ": " + msg;
                                 }
                                 msgHandler.handle(msg);
+                                controller.writeMsgToHistory(msg);
+                            }
+                            break;
+                        }
+                        case HISTORY_LINES: {
+                            HistoryMsgCommand commandData = (HistoryMsgCommand) command.getData();
+                            if (msgHandler != null) {
+                                String msg = commandData.getMsg().trim();
+
+                                if (!msg.isEmpty()) {
+                                    msgHandler.handle(msg);
+                                }
                             }
                             break;
                         }
@@ -103,6 +121,7 @@ public class NetworkService {
         }).start();
     }
 
+
     public void sendCommand(Command command) throws IOException {
         out.writeObject(command);
     }
@@ -122,6 +141,4 @@ public class NetworkService {
     public void setSuccessfulAuthEvent(AuthEvent successfulAuthEvent) {
         this.successfulAuthEvent = successfulAuthEvent;
     }
-
-
 }
