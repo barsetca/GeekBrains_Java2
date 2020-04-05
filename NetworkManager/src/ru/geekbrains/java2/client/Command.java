@@ -78,4 +78,11 @@ public class Command implements Serializable {
         command.data = new UpdateNickCommand(newNickName, oldNickName);
         return command;
     }
+
+    public static Command historyMsgCommand(String receiver, String message) {
+        Command command = new Command();
+        command.type = CommandType.HISTORY_LINES;
+        command.data = new HistoryMsgCommand(receiver, message);
+        return command;
+    }
 }

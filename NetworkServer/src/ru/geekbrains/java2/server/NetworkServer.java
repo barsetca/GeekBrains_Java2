@@ -1,17 +1,27 @@
 package ru.geekbrains.java2.server;
 
+
 import ru.geekbrains.java2.client.Command;
+import ru.geekbrains.java2.client.CommandType;
+import ru.geekbrains.java2.client.command.MsgCommand;
 import ru.geekbrains.java2.server.auth.AuthService;
 import ru.geekbrains.java2.server.auth.BaseAuthServiceImpl;
 import ru.geekbrains.java2.server.client.ClientHandler;
 import ru.geekbrains.java2.server.dao.JdbcDao;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class NetworkServer {
 
@@ -19,6 +29,8 @@ public class NetworkServer {
     //private final List<ClientHandler> clients = new ArrayList<>();
     private final List<ClientHandler> clients = new CopyOnWriteArrayList<>();
     private final AuthService authService;
+    private static final int LIMIT_LINE = 100;
+
 
     public NetworkServer(int port) {
         this.port = port;
@@ -58,6 +70,16 @@ public class NetworkServer {
     }
 
     public /*synchronized*/ void broadCastMsg(Command msgCommand, ClientHandler owner) throws IOException {
+
+
+        if (msgCommand.getType().equals(CommandType.MESSAGE)) {
+            MsgCommand msg = (MsgCommand) msgCommand.getData();
+            try(BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter("archiveChat.txt", true))){
+            bufferedWriter.write(owner.getNickName() + ": " + msg.getMsg() + System.lineSeparator());
+            }
+
+        }
+
         for (ClientHandler client : clients) {
             if (!client.equals(owner)) {
                 client.sendMsg(msgCommand);
@@ -99,5 +121,26 @@ public class NetworkServer {
             }
         }
         return false;
+    }
+
+    public void fillHistoryChat(ClientHandler clientHandler) throws IOException {
+
+        List<String> lines;
+        Path path = Paths.get("archiveChat.txt");
+
+        try (Stream<String> lineStream = Files.newBufferedReader(path).lines()) {
+
+            lines = lineStream.collect(Collectors.toList());
+            int lineSize = lines.size();
+            int skipLine = 0;
+            if (lineSize > LIMIT_LINE) {
+                skipLine = lineSize - LIMIT_LINE;
+            }
+            StringBuilder sb = new StringBuilder();
+            for (int i = skipLine; i < lines.size(); i++) {
+                sb.append(lines.get(i) + "\n");
+            }
+            sendMsg(clientHandler.getNickName(), Command.historyMsgCommand(clientHandler.getNickName(), sb.toString()));
+        }
     }
 }

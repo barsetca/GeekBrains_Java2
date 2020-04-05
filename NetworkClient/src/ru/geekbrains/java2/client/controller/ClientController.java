@@ -4,6 +4,8 @@ import ru.geekbrains.java2.client.model.NetworkService;
 import ru.geekbrains.java2.client.view.AuthDialog;
 import ru.geekbrains.java2.client.view.ClientChat;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 
@@ -115,5 +117,13 @@ public class ClientController {
         users.remove(nickName);
         users.add(0, "");
         clientChat.updateUsers(users);
+    }
+
+    public void writeMsgToHistory(String msg) {
+        try (BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter("history_" + networkService.getLogin(), true))) {
+            bufferedWriter.write(msg + System.lineSeparator());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

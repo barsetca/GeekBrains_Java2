@@ -5,6 +5,7 @@ public enum CommandType {
     AUTH_ERROR,
     PRIVATE_MESSAGE,
     BROADCAST_MESSAGE,
+    HISTORY_LINES,
     MESSAGE,
     UPDATE_USERS_LIST,
     UPDATE_NICK_NAME,

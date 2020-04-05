@@ -163,6 +163,7 @@ public class ClientHandler {
             commandData.setUsername(nickName);
             sendMsg(command);
             networkServer.subscribe(this);
+            networkServer.fillHistoryChat(this);
             return true;
         }
     }
@@ -182,7 +183,6 @@ public class ClientHandler {
             networkServer.broadCastMsg(Command.msgCommand(null, message), this);
             networkServer.unSubscribe(this);
             nickName = newNickName;
-//            commandData.setUsername(nickName);
             sendMsg(command);
             networkServer.subscribe(this);
         }
