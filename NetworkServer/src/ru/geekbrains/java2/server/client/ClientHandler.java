@@ -12,6 +12,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 public class ClientHandler {
@@ -20,6 +22,7 @@ public class ClientHandler {
 
     private ObjectInputStream in;
     private ObjectOutputStream out;
+    private ExecutorService executorServer;
 
     private String nickName;
 
@@ -39,36 +42,57 @@ public class ClientHandler {
             out = new ObjectOutputStream(clientSocket.getOutputStream());
             in = new ObjectInputStream(clientSocket.getInputStream());
 
-            new Thread(() -> {
-                try {
-                    Thread timeOutAuth = new Thread(() -> {
-                        try {
-                            Thread.sleep(TimeUnit.SECONDS.toMillis(120));
-                            if (nickName == null) {
-                                System.err.println("Превышение таймаута на аутентификацию клиента");
-                                Command authErrorCommand = Command.errorCommand("Превышение таймаута на аутентификацию");
-                                sendMsg(authErrorCommand);
-                                clientSocket.close();
-                            }
-                        } catch (InterruptedException | IOException e) {
-                            e.printStackTrace();
-                        }
-                    });
-                    timeOutAuth.setDaemon(true);
-                    timeOutAuth.start();
+           executorServer = Executors.newSingleThreadExecutor();
+           executorServer.execute(() -> {
+               try {
+                   ClientHandler.this.timeOutAuth(clientSocket);
+                   ClientHandler.this.authUser();
+                   ClientHandler.this.readMsg();
+               } catch (IOException e) {
+                   System.out.println("Соединение с клиентом: " + nickName + " закрыто!");
+               } finally {
+                   ClientHandler.this.closeConnection();
+               }
+           });
+            executorServer.shutdown();
 
-                    authUser();
-                    readMsg();
-                } catch (IOException e) {
-                    System.out.println("Соединение с клиентом: " + nickName + " закрыто!");
-                } finally {
-                    closeConnection();
-                }
-            }).start();
+//
+//            new Thread(new Runnable() {
+//                @Override
+//                public void run() {
+//                    try {
+//                        ClientHandler.this.timeOutAuth(clientSocket);
+//                        ClientHandler.this.authUser();
+//                        ClientHandler.this.readMsg();
+//                    } catch (IOException e) {
+//                        System.out.println("Соединение с клиентом: " + nickName + " закрыто!");
+//                    } finally {
+//                        ClientHandler.this.closeConnection();
+//                    }
+//                }
+//            }).start();
 
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private void timeOutAuth(Socket clientSocket) {
+        Thread timeOutAuth = new Thread(() -> {
+            try {
+                Thread.sleep(TimeUnit.SECONDS.toMillis(120));
+                if (nickName == null) {
+                    System.err.println("Превышение таймаута на аутентификацию клиента");
+                    Command authErrorCommand = Command.errorCommand("Превышение таймаута на аутентификацию");
+                    sendMsg(authErrorCommand);
+                    clientSocket.close();
+                }
+            } catch (InterruptedException | IOException e) {
+                e.printStackTrace();
+            }
+        });
+        timeOutAuth.setDaemon(true);
+        timeOutAuth.start();
     }
 
     private void closeConnection() {
