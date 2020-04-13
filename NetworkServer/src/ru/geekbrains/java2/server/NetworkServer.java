@@ -1,6 +1,8 @@
 package ru.geekbrains.java2.server;
 
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import ru.geekbrains.java2.client.Command;
 import ru.geekbrains.java2.client.CommandType;
 import ru.geekbrains.java2.client.command.MsgCommand;
@@ -17,13 +19,14 @@ import java.net.Socket;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class NetworkServer {
+
+    private static final Logger LOGGER = LogManager.getLogger(NetworkServer.class);
 
     private final int port;
     //private final List<ClientHandler> clients = new ArrayList<>();
@@ -39,19 +42,19 @@ public class NetworkServer {
 
     public void start() {
         try (ServerSocket serverSocket = new ServerSocket(port)) {
-            System.out.println("Сервер успешно запущен на порту: " + port);
+            LOGGER.info("Сервер успешно запущен на порту: " + port);
             authService.start();
             while (true) {
-                System.out.println("Ожидание подключения клиента ...");
+                LOGGER.info("Ожидание подключения клиента ...");
                 Socket clientSocket = serverSocket.accept();
-                System.out.println("Клиент подключился");
+                LOGGER.info("Клиент подключился");
 
                 createClientHandler(clientSocket);
                 // clients.add(new ClientHandler(this, clientSocket));
             }
 
         } catch (IOException e) {
-            System.out.println("Ошибка сервера");
+            LOGGER.fatal("Ошибка сервера", e);
             JdbcDao.CloseConnectionDB();
             e.printStackTrace();
         } finally {
@@ -74,8 +77,8 @@ public class NetworkServer {
 
         if (msgCommand.getType().equals(CommandType.MESSAGE)) {
             MsgCommand msg = (MsgCommand) msgCommand.getData();
-            try(BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter("archiveChat.txt", true))){
-            bufferedWriter.write(owner.getNickName() + ": " + msg.getMsg() + System.lineSeparator());
+            try (BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter("archiveChat.txt", true))) {
+                bufferedWriter.write(owner.getNickName() + ": " + msg.getMsg() + System.lineSeparator());
             }
 
         }

@@ -1,0 +1,90 @@
+ERROR 2020-04-11 16:49:01 [main] ru.geekbrains.java2.server.ServerApp (ServerApp.java:27) - Неккоректный формат порта в args[0]: gg Будет использоваться порт по умолчанию 8189.
+java.lang.NumberFormatException: For input string: "gg"
+	at java.lang.NumberFormatException.forInputString(NumberFormatException.java:65) ~[?:1.8.0_241]
+	at java.lang.Integer.parseInt(Integer.java:580) ~[?:1.8.0_241]
+	at java.lang.Integer.parseInt(Integer.java:615) ~[?:1.8.0_241]
+	at ru.geekbrains.java2.server.ServerApp.getServerPort(ServerApp.java:23) [NetworkServer/:?]
+	at ru.geekbrains.java2.server.ServerApp.main(ServerApp.java:15) [NetworkServer/:?]
+INFO  2020-04-11 16:49:01 [main] ru.geekbrains.java2.server.NetworkServer (NetworkServer.java:46) - Сервер успешно запущен на порту: 8189
+INFO  2020-04-11 16:49:01 [main] ru.geekbrains.java2.server.auth.BaseAuthServiceImpl (BaseAuthServiceImpl.java:27) - Сервис аутентификации запущен
+INFO  2020-04-11 16:49:01 [main] ru.geekbrains.java2.server.NetworkServer (NetworkServer.java:49) - Ожидание подключения клиента ...
+INFO  2020-04-11 16:51:04 [main] ru.geekbrains.java2.server.NetworkServer (NetworkServer.java:51) - Клиент подключился
+INFO  2020-04-11 16:51:04 [main] ru.geekbrains.java2.server.NetworkServer (NetworkServer.java:49) - Ожидание подключения клиента ...
+INFO  2020-04-11 16:53:04 [Thread-1] ru.geekbrains.java2.server.client.ClientHandler (ClientHandler.java:75) - Превышение таймаута на аутентификацию клиента
+ERROR 2020-04-11 16:53:04 [pool-2-thread-1] ru.geekbrains.java2.server.client.ClientHandler (ClientHandler.java:58) - Соединение с клиентом: null закрыто!
+java.net.SocketException: Socket closed
+	at java.net.SocketInputStream.socketRead0(Native Method) ~[?:1.8.0_241]
+	at java.net.SocketInputStream.socketRead(SocketInputStream.java:116) ~[?:1.8.0_241]
+	at java.net.SocketInputStream.read(SocketInputStream.java:171) ~[?:1.8.0_241]
+	at java.net.SocketInputStream.read(SocketInputStream.java:141) ~[?:1.8.0_241]
+	at java.net.SocketInputStream.read(SocketInputStream.java:224) ~[?:1.8.0_241]
+	at java.io.ObjectInputStream$PeekInputStream.peek(ObjectInputStream.java:2695) ~[?:1.8.0_241]
+	at java.io.ObjectInputStream$BlockDataInputStream.peek(ObjectInputStream.java:3002) ~[?:1.8.0_241]
+	at java.io.ObjectInputStream$BlockDataInputStream.peekByte(ObjectInputStream.java:3012) ~[?:1.8.0_241]
+	at java.io.ObjectInputStream.readObject0(ObjectInputStream.java:1575) ~[?:1.8.0_241]
+	at java.io.ObjectInputStream.readObject(ObjectInputStream.java:464) ~[?:1.8.0_241]
+	at java.io.ObjectInputStream.readObject(ObjectInputStream.java:422) ~[?:1.8.0_241]
+	at ru.geekbrains.java2.server.client.ClientHandler.readCommand(ClientHandler.java:131) ~[NetworkServer/:?]
+	at ru.geekbrains.java2.server.client.ClientHandler.authUser(ClientHandler.java:143) ~[NetworkServer/:?]
+	at ru.geekbrains.java2.server.client.ClientHandler.lambda$doHandle$0(ClientHandler.java:55) ~[NetworkServer/:?]
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149) [?:1.8.0_241]
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624) [?:1.8.0_241]
+	at java.lang.Thread.run(Thread.java:748) [?:1.8.0_241]
+
+ERROR 2020-04-11 18:02:20 [main] ru.geekbrains.java2.server.ServerApp (ServerApp.java:24) - Неккоректный формат порта в args[0]: gg Будет использоваться порт по умолчанию 8189.
+
+java.lang.NumberFormatException: For input string: "gg"
+	at java.lang.NumberFormatException.forInputString(NumberFormatException.java:65) ~[?:1.8.0_241]
+	at java.lang.Integer.parseInt(Integer.java:580) ~[?:1.8.0_241]
+	at java.lang.Integer.parseInt(Integer.java:615) ~[?:1.8.0_241]
+	at ru.geekbrains.java2.server.ServerApp.getServerPort(ServerApp.java:20) [NetworkServer/:?]
+	at ru.geekbrains.java2.server.ServerApp.main(ServerApp.java:12) [NetworkServer/:?]
+INFO  2020-04-11 18:02:20 [main] ru.geekbrains.java2.server.NetworkServer (NetworkServer.java:46) - Сервер успешно запущен на порту: 8189
+INFO  2020-04-11 18:02:20 [main] ru.geekbrains.java2.server.auth.BaseAuthServiceImpl (BaseAuthServiceImpl.java:27) - Сервис аутентификации запущен
+INFO  2020-04-11 18:02:20 [main] ru.geekbrains.java2.server.NetworkServer (NetworkServer.java:49) - Ожидание подключения клиента ...
+INFO  2020-04-11 18:04:03 [main] Log4j2Tester (Log4j2Tester.java:14) - Info
+WARN  2020-04-11 18:04:03 [main] Log4j2Tester (Log4j2Tester.java:15) - Warn
+ERROR 2020-04-11 18:04:03 [main] Log4j2Tester (Log4j2Tester.java:16) - Error
+FATAL 2020-04-11 18:04:03 [main] Log4j2Tester (Log4j2Tester.java:17) - Fatal
+INFO  2020-04-11 18:04:03 [main] Log4j2Tester (Log4j2Tester.java:18) - String: Hello, World.
+INFO  2020-04-11 18:04:36 [main] Log4j2Tester (Log4j2Tester.java:14) - Info
+WARN  2020-04-11 18:04:36 [main] Log4j2Tester (Log4j2Tester.java:15) - Warn
+ERROR 2020-04-11 18:04:36 [main] Log4j2Tester (Log4j2Tester.java:16) - Error
+FATAL 2020-04-11 18:04:36 [main] Log4j2Tester (Log4j2Tester.java:17) - Fatal
+INFO  2020-04-11 18:04:36 [main] Log4j2Tester (Log4j2Tester.java:18) - String: Hello, World.
+ERROR 2020-04-11 18:20:48 [main] ru.geekbrains.java2.server.ServerApp (ServerApp.java:24) - Неккоректный формат порта в args[0]: gg Будет использоваться порт по умолчанию 8189.
+
+java.lang.NumberFormatException: For input string: "gg"
+	at java.lang.NumberFormatException.forInputString(NumberFormatException.java:65) ~[?:1.8.0_241]
+	at java.lang.Integer.parseInt(Integer.java:580) ~[?:1.8.0_241]
+	at java.lang.Integer.parseInt(Integer.java:615) ~[?:1.8.0_241]
+	at ru.geekbrains.java2.server.ServerApp.getServerPort(ServerApp.java:20) [NetworkServer/:?]
+	at ru.geekbrains.java2.server.ServerApp.main(ServerApp.java:12) [NetworkServer/:?]
+INFO  2020-04-11 18:20:48 [main] ru.geekbrains.java2.server.NetworkServer (NetworkServer.java:46) - Сервер успешно запущен на порту: 8189
+INFO  2020-04-11 18:20:48 [main] ru.geekbrains.java2.server.auth.BaseAuthServiceImpl (BaseAuthServiceImpl.java:27) - Сервис аутентификации запущен
+INFO  2020-04-11 18:20:48 [main] ru.geekbrains.java2.server.NetworkServer (NetworkServer.java:49) - Ожидание подключения клиента ...
+ERROR 2020-04-11 18:23:07 [main] ru.geekbrains.java2.server.ServerApp (ServerApp.java:24) - Неккоректный формат порта в args[0]: gg Будет использоваться порт по умолчанию 8189.
+
+java.lang.NumberFormatException: For input string: "gg"
+	at java.lang.NumberFormatException.forInputString(NumberFormatException.java:65) ~[?:1.8.0_241]
+	at java.lang.Integer.parseInt(Integer.java:580) ~[?:1.8.0_241]
+	at java.lang.Integer.parseInt(Integer.java:615) ~[?:1.8.0_241]
+	at ru.geekbrains.java2.server.ServerApp.getServerPort(ServerApp.java:20) [NetworkServer/:?]
+	at ru.geekbrains.java2.server.ServerApp.main(ServerApp.java:12) [NetworkServer/:?]
+INFO  2020-04-11 18:23:07 [main] ru.geekbrains.java2.server.NetworkServer (NetworkServer.java:46) - Сервер успешно запущен на порту: 8189
+INFO  2020-04-11 18:23:07 [main] ru.geekbrains.java2.server.auth.BaseAuthServiceImpl (BaseAuthServiceImpl.java:27) - Сервис аутентификации запущен
+INFO  2020-04-11 18:23:07 [main] ru.geekbrains.java2.server.NetworkServer (NetworkServer.java:49) - Ожидание подключения клиента ...
+INFO  2020-04-11 18:24:36 [main] ru.geekbrains.java2.server.NetworkServer (NetworkServer.java:51) - Клиент подключился
+INFO  2020-04-11 18:24:36 [main] ru.geekbrains.java2.server.NetworkServer (NetworkServer.java:49) - Ожидание подключения клиента ...
+ERROR 2020-04-11 18:24:58 [pool-2-thread-1] ru.geekbrains.java2.server.client.ClientHandler (ClientHandler.java:58) - Соединение с клиентом: nick1 закрыто!
+java.io.EOFException: null
+	at java.io.ObjectInputStream$BlockDataInputStream.peekByte(ObjectInputStream.java:3014) ~[?:1.8.0_241]
+	at java.io.ObjectInputStream.readObject0(ObjectInputStream.java:1575) ~[?:1.8.0_241]
+	at java.io.ObjectInputStream.readObject(ObjectInputStream.java:464) ~[?:1.8.0_241]
+	at java.io.ObjectInputStream.readObject(ObjectInputStream.java:422) ~[?:1.8.0_241]
+	at ru.geekbrains.java2.server.client.ClientHandler.readCommand(ClientHandler.java:131) ~[NetworkServer/:?]
+	at ru.geekbrains.java2.server.client.ClientHandler.readMsg(ClientHandler.java:99) ~[NetworkServer/:?]
+	at ru.geekbrains.java2.server.client.ClientHandler.lambda$doHandle$0(ClientHandler.java:56) ~[NetworkServer/:?]
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149) [?:1.8.0_241]
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624) [?:1.8.0_241]
+	at java.lang.Thread.run(Thread.java:748) [?:1.8.0_241]

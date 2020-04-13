@@ -1,9 +1,14 @@
 package ru.geekbrains.java2.server.auth;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import ru.geekbrains.java2.server.NetworkServer;
 import ru.geekbrains.java2.server.dao.JdbcDao;
 
 
 public class BaseAuthServiceImpl implements AuthService {
+
+    private static final Logger LOGGER = LogManager.getLogger(NetworkServer.class);
 
     JdbcDao jdbcDao = new JdbcDao();
 
@@ -19,11 +24,11 @@ public class BaseAuthServiceImpl implements AuthService {
 
     @Override
     public void start() {
-        System.out.println("Сервис аутентификации запущен");
+        LOGGER.info("Сервис аутентификации запущен");
     }
 
     @Override
     public void stop() {
-        System.out.println("Сервис аутентификации закрыт");
+        LOGGER.info("Сервис аутентификации закрыт");
     }
 }

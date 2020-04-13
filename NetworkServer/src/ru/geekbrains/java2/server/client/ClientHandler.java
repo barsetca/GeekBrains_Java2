@@ -1,5 +1,7 @@
 package ru.geekbrains.java2.server.client;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import ru.geekbrains.java2.client.Command;
 import ru.geekbrains.java2.client.CommandType;
 import ru.geekbrains.java2.client.command.AuthCommand;
@@ -17,6 +19,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 public class ClientHandler {
+
+    private static final Logger LOGGER = LogManager.getLogger(NetworkServer.class);
+
     private final NetworkServer networkServer;
     private final Socket clientSocket;
 
@@ -42,35 +47,19 @@ public class ClientHandler {
             out = new ObjectOutputStream(clientSocket.getOutputStream());
             in = new ObjectInputStream(clientSocket.getInputStream());
 
-           executorServer = Executors.newSingleThreadExecutor();
-           executorServer.execute(() -> {
-               try {
-                   ClientHandler.this.timeOutAuth(clientSocket);
-                   ClientHandler.this.authUser();
-                   ClientHandler.this.readMsg();
-               } catch (IOException e) {
-                   System.out.println("Соединение с клиентом: " + nickName + " закрыто!");
-               } finally {
-                   ClientHandler.this.closeConnection();
-               }
-           });
+            executorServer = Executors.newSingleThreadExecutor();
+            executorServer.execute(() -> {
+                try {
+                    ClientHandler.this.timeOutAuth(clientSocket);
+                    ClientHandler.this.authUser();
+                    ClientHandler.this.readMsg();
+                } catch (IOException e) {
+                    LOGGER.error("Соединение с клиентом: " + nickName + " закрыто!", e);
+                } finally {
+                    ClientHandler.this.closeConnection();
+                }
+            });
             executorServer.shutdown();
-
-//
-//            new Thread(new Runnable() {
-//                @Override
-//                public void run() {
-//                    try {
-//                        ClientHandler.this.timeOutAuth(clientSocket);
-//                        ClientHandler.this.authUser();
-//                        ClientHandler.this.readMsg();
-//                    } catch (IOException e) {
-//                        System.out.println("Соединение с клиентом: " + nickName + " закрыто!");
-//                    } finally {
-//                        ClientHandler.this.closeConnection();
-//                    }
-//                }
-//            }).start();
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -82,13 +71,13 @@ public class ClientHandler {
             try {
                 Thread.sleep(TimeUnit.SECONDS.toMillis(120));
                 if (nickName == null) {
-                    System.err.println("Превышение таймаута на аутентификацию клиента");
+                    LOGGER.info("Превышение таймаута на аутентификацию клиента");
                     Command authErrorCommand = Command.errorCommand("Превышение таймаута на аутентификацию");
                     sendMsg(authErrorCommand);
                     clientSocket.close();
                 }
             } catch (InterruptedException | IOException e) {
-                e.printStackTrace();
+                LOGGER.error("Ошибка таймаута на аутентификацию клиента", e);
             }
         });
         timeOutAuth.setDaemon(true);
@@ -100,7 +89,7 @@ public class ClientHandler {
             networkServer.unSubscribe(this);
             clientSocket.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.fatal("Ошибка при закрытии соединения" + clientSocket, e);
         }
     }
 
@@ -112,7 +101,7 @@ public class ClientHandler {
             }
             switch (command.getType()) {
                 case END:
-                    System.out.println("Получена команда завершения: " + command.getType());
+                    LOGGER.info("Получена команда завершения: " + command.getType());
                     return;
                 case PRIVATE_MESSAGE: {
                     PrivateMsgCommand commandData = (PrivateMsgCommand) command.getData();
@@ -131,7 +120,7 @@ public class ClientHandler {
                     doUpdateNickCommand(command);
                     break;
                 default:
-                    System.out.println("Получена неизвестная команда чтения: " + command.getType());
+                    LOGGER.error("Получена неизвестная команда чтения: " + command.getType());
             }
         }
     }
@@ -141,8 +130,7 @@ public class ClientHandler {
             return (Command) in.readObject();
         } catch (ClassNotFoundException e) {
             String errorMessage = "Неизвестный тип объекта от клиента!";
-            System.err.println(errorMessage);
-            e.printStackTrace();
+            LOGGER.error(errorMessage, e);
             sendMsg(Command.errorCommand(errorMessage));
             return null;
         }
@@ -162,7 +150,7 @@ public class ClientHandler {
                     return;
                 }
             } else {
-                System.err.println("Получена неизвестная команда аутентификации: " + command.getType());
+                LOGGER.error("Получена неизвестная команда аутентификации: " + command.getType());
             }
         }
     }
@@ -174,10 +162,12 @@ public class ClientHandler {
         String username = networkServer.getAuthService().getUserNameByLoginAndPassword(login, password);
         if (username == null) {
             Command authErrorCommand = Command.authErrorCommand("Отсутствует учетная запись по данному логину и паролю!");
+            LOGGER.info("Отсутствует учетная запись по данному логину и паролю!");
             sendMsg(authErrorCommand);
             return false;
         } else if (networkServer.isNicknameBusy(username)) {
             Command authErrorCommand = Command.authErrorCommand("Данный пользователь уже авторизован!");
+            LOGGER.info("Данный пользователь уже авторизован!");
             sendMsg(authErrorCommand);
             return false;
         } else {
