@@ -1,5 +1,6 @@
 package hw06java3;
 
+import hw06java3.util.HwMethods;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -54,6 +55,7 @@ public class HwMethodsTest {
         }
 
         Assert.assertArrayEquals(result1, hwMethods.getAfterFourArray(element));
+
     }
 
     @Test
