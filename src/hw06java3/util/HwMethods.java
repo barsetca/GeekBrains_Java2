@@ -1,4 +1,4 @@
-package hw06java3;
+package hw06java3.util;
 
 import java.util.ArrayList;
 import java.util.Arrays;
