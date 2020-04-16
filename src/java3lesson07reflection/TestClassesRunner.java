@@ -4,12 +4,13 @@ import java3lesson07reflection.utilannotation.AfterSuite;
 import java3lesson07reflection.utilannotation.BeforeSuite;
 import java3lesson07reflection.utilannotation.Test;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
 
 public class TestClassesRunner {
+
+    private static final int COUNT_SINGLE_ANNOTATION = 1;
 
     public static void start(Class testClass) {
 
@@ -56,14 +57,14 @@ public class TestClassesRunner {
 //        }
 
         Method[] methods = testClass.getDeclaredMethods();
-        for (Method method : methods) {
-            System.out.println("Метод: " + method.getReturnType() + " | " + method.getName() + " | " + Arrays.toString(method.getParameterTypes()) + "\n" +
-                    "Полная информция по методу " + method.getName() + " класса " + testClass.getSimpleName() + ": " + method);
-            Annotation[] annotationsMethod = method.getAnnotations();
-            for (Annotation annotation : annotationsMethod) {
-                System.out.println("Аннотация - " + annotation.toString());
-            }
-        }
+//        for (Method method : methods) {
+//            System.out.println("Метод: " + method.getReturnType() + " | " + method.getName() + " | " + Arrays.toString(method.getParameterTypes()) + "\n" +
+//                    "Полная информция по методу " + method.getName() + " класса " + testClass.getSimpleName() + ": " + method);
+//            Annotation[] annotationsMethod = method.getAnnotations();
+//            for (Annotation annotation : annotationsMethod) {
+//                System.out.println("Аннотация - " + annotation.toString());
+//            }
+//        }
 
         Object object;
         try {
@@ -73,22 +74,29 @@ public class TestClassesRunner {
             return;
         }
 
+        Method beforeStartTests = null;
+        int countBeforeAnnotation = 0;
         Method afterFinishTests = null;
+        int countAfterAnnotation = 0;
         Map<Integer, List<Method>> mapPriorityMethods = new TreeMap<>();
 
         for (Method method : methods) {
             if (method.getAnnotation(BeforeSuite.class) != null) {
+                countBeforeAnnotation++;
+                beforeStartTests = method;
 
-                try {
-                    //method = testClass.getDeclaredMethod("init", null);
-                    method.setAccessible(true);
-                    method.invoke(testClass);
-                    method.setAccessible(false);
-                } catch (IllegalAccessException | InvocationTargetException e) {
-                    e.printStackTrace();
-                }
+//                try {
+//                    //method = testClass.getDeclaredMethod("init", null);
+//                    method.setAccessible(true);
+//                    method.invoke(testClass);
+//                    method.setAccessible(false);
+//                } catch (IllegalAccessException | InvocationTargetException e) {
+//                    e.printStackTrace();
+//                }
             }
             if (method.getAnnotation(AfterSuite.class) != null) {
+                countAfterAnnotation++;
+
 //                try {
                 afterFinishTests = method;
                 //testClass.getMethod("printResult", null);
@@ -105,6 +113,18 @@ public class TestClassesRunner {
             }
         }
 
+        checkCountAnnotation(countBeforeAnnotation, "@BeforeSuite");
+        checkCountAnnotation(countAfterAnnotation, "@AfterSuite");
+
+        invokeSingleMethod(testClass, beforeStartTests);
+
+        invokeTests(object, mapPriorityMethods);
+
+        invokeSingleMethod(testClass, afterFinishTests);
+
+    }
+
+    private static void invokeTests(Object object, Map<Integer, List<Method>> mapPriorityMethods) {
         for (Map.Entry<Integer, List<Method>> pair : mapPriorityMethods.entrySet()) {
             int priority = pair.getKey();
             List<Method> methodsList = pair.getValue();
@@ -120,16 +140,24 @@ public class TestClassesRunner {
                 }
             }
         }
+    }
 
-        if (afterFinishTests != null) {
+    private static void checkCountAnnotation(int countBeforeAnnotation, String annotation) {
+        if (countBeforeAnnotation > COUNT_SINGLE_ANNOTATION) {
+            throw new RuntimeException("Аннотация " + annotation + " должна использоваться только"
+                    + COUNT_SINGLE_ANNOTATION + "раз");
+        }
+    }
+
+    private static void invokeSingleMethod(Class testClass, Method metodToInvoke) {
+        if (metodToInvoke != null) {
             try {
-                afterFinishTests.setAccessible(true);
-                afterFinishTests.invoke(testClass);
-                afterFinishTests.setAccessible(false);
+                metodToInvoke.setAccessible(true);
+                metodToInvoke.invoke(testClass);
+                metodToInvoke.setAccessible(false);
             } catch (IllegalAccessException | InvocationTargetException e) {
                 e.printStackTrace();
             }
         }
-
     }
 }
